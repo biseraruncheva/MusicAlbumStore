@@ -1,0 +1,144 @@
+﻿@model MusicAlbumStore.Models.Artist
+
+@{
+    ViewData["Title"] = "Details";
+}
+<style>
+    body {
+        background-color: ghostwhite
+    }
+</style>
+<h1>Details</h1>
+
+<div>
+    <h4>Artist</h4>
+    <hr />
+
+
+<div class="container">
+    <div class="card mb-3" style="height: 500px;">
+        <div class="row no-gutters">
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h2 class="card-title">
+                              @Html.DisplayFor(model => model.ArtistName)             
+                    </h2>
+                    <h5 class="card-title">
+                        <span>@Html.DisplayNameFor(model => model.YearsActive)</span>
+                    </h5>
+                    <p class="card-text">
+                        <span>@Html.DisplayFor(model => model.YearsActive)</span>
+
+                    </p>
+                    <h5 class="card-title">
+                        <span>@Html.DisplayNameFor(model => model.Label)</span>
+                    </h5>
+                    <p class="card-text">
+                        <span>@Html.DisplayFor(model => model.Label)</span>
+
+                    </p>
+                    <h5 class="card-title">
+                        <span>@Html.DisplayNameFor(model => model.Website)</span>
+                    </h5>
+                    <p class="card-text">
+                        <a href="@Model.Website">
+                            @Html.DisplayFor(model => model.Website)
+                        </a>
+                    </p>
+                    <h5 class="card-title">
+                        <span>@Html.DisplayNameFor(model => model.Biography)</span>
+                    </h5>
+                        <div style="max-height: 11em; overflow-y: auto;">
+                            <p class="card-text">
+                                <span>@Html.DisplayFor(model => model.Biography)</span>
+                            </p>
+                        </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <img src="@Url.Content(Model.ArtistImage)" class="card-img" alt="Cover Image" style="height: 500px;">
+            </div>
+        </div>
+    </div>
+        <div>
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+            }|
+            <a asp-action="Index">Back to List</a>
+        </div>
+</div>
+
+<br />
+<h4>Artist's Music Albums</h4>
+<hr />
+
+@{
+    var musicAlbums = Model.MusicAlbums.OrderBy(m => m.ReleaseDate);
+    var nummusicAlbums = musicAlbums.Count();
+    var numColumns = 2;
+    var numRows = (int)Math.Ceiling((double)nummusicAlbums / numColumns);
+}
+<div class="container">
+    @for (int i = 0; i < numRows; i++)
+    {
+        <div class="row">
+            @for (int j = 0; j < numColumns; j++)
+            {
+                var index = i * numColumns + j;
+                if (index >= nummusicAlbums) { break; }
+                var item = musicAlbums.ElementAt(index);
+                <div class="col-md-6">
+                    <div class="card mb-3" style="height: 250px;">
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <img src="@Url.Content(@item.CoverImage)" class="card-img" alt="Cover Image" style="height: 250px;">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        @Html.DisplayFor(modelItem => item.MusicAlbumName)
+                                    </h5>
+                                    <p class="card-text">
+                                        @Html.DisplayNameFor(model => item.ReleaseDate): @Html.DisplayFor(modelItem => item.ReleaseDate)
+                                    </p>
+                                    <p class="card-text">
+                                        @Html.DisplayNameFor(model => item.Artist):
+                                        @if (item.ArtistId != null)
+                                        {
+                                            <a asp-controller="Artists" asp-action="Details" asp-route-id="@item.ArtistId"> @Html.DisplayFor(modelItem => item.Artist.ArtistName)</a>
+                                        }
+                                    </p>
+                                    <p class="card-text">
+                                        Average Rating:
+                                        @if (ViewBag.AverageRatings.ContainsKey(item.Id))
+                                        {
+                                            <span>@ViewBag.AverageRatings[item.Id].ToString("0.00")</span>
+                                        }
+                                    </p>
+                                    <p class="card-text">
+                                        @Html.DisplayNameFor(model => item.Price): @Html.DisplayFor(modelItem => item.Price) $
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Edit" asp-controller="MusicAlbums" asp-route-id="@item.Id">Edit</a>
+                                            }
+                                            |
+                                            <a asp-action="Details" asp-controller="MusicAlbums" asp-route-id="@item.Id">Details</a> |
+                                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Delete" asp-controller="MusicAlbums" asp-route-id="@item.Id">Delete</a>
+                                            }
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

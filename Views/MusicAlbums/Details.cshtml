@@ -1,0 +1,139 @@
+﻿@model MusicAlbumStore.Models.MusicAlbum
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<style>
+    body {
+        background-color: ghostwhite
+    }
+</style>
+<h1>Details</h1>
+
+<div>
+    <h4>Music Album</h4>
+    <hr />
+  
+    <style>
+        body {
+            background-color: ghostwhite
+        }
+    </style>
+    <div class="container">
+        <div class="card mb-3" style="height: 400px; width:800px">
+            <div class="row no-gutters">
+                <div class="col-md-6">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            @Html.DisplayFor(model => model.MusicAlbumName)
+                        </h3>
+                        <h5 class="card-title">
+                            <span>@Html.DisplayNameFor(model => model.Artist.ArtistName)</span>
+                        </h5>
+                        <p class="card-text">
+                            <span>@Html.DisplayFor(model => model.Artist.ArtistName)</span>
+
+                        </p>
+                        <h5 class="card-title">
+                            <span>@Html.DisplayNameFor(model => model.ReleaseDate)</span>
+                        </h5>
+                        <p class="card-text">
+                            <span>@Html.DisplayFor(model => model.ReleaseDate)</span>
+
+                        </p>
+                        <h5 class="card-title">
+                            <span>@Html.DisplayNameFor(model => model.Language)</span>
+                        </h5>
+                        <p class="card-text">
+                            <span>@Html.DisplayFor(model => model.Language)</span>
+
+                        </p>
+                        <h5 class="card-title">
+                            <span>@Html.DisplayNameFor(model => model.LengthInMinutes)</span>
+                        </h5>
+                        <p class="card-text">
+                            <span>@Html.DisplayFor(model => model.LengthInMinutes) mintues</span>
+
+                        </p>
+                        <h5 class="card-title">
+                            <span>@Html.DisplayNameFor(model => model.NumSongs)</span>
+                        </h5>
+                        <p class="card-text">
+                            <span>@Html.DisplayFor(model => model.NumSongs)</span>
+
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <img src="@Url.Content(Model.CoverImage)" class="card-img" alt="Cover Image" style="height: 400px;">
+                </div>
+            </div>
+        </div>
+        <h5>
+            <span>@Html.DisplayNameFor(model => model.Description)</span>
+        </h5>
+        <p class="text-justify" style="width: 800px">
+            <span>@Html.DisplayFor(model => model.Description)</span>
+
+        </p>
+        <h4>
+            <span>@Html.DisplayNameFor(model => model.Price):</span>
+            <span>@Html.DisplayFor(model => model.Price)$</span>
+            @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+            {
+                <form asp-action="Order">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" value="Order Now" class="btn btn-primary btn-lg" />
+                </form>
+            }
+
+        </h4>
+        <div>
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+            }|
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+<br />
+<h4>Reviews</h4>
+<hr />
+
+    @foreach (var item in Model.Reviews.OrderByDescending(r => r.SubmissionDate))
+    {
+        <div class="card shadow-sm" style="width: 800px">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                    @{
+                        int? rating = item.Rating; 
+                    }
+
+                    @if (rating.HasValue)
+                    {
+                        for (int i = 0; i < rating.Value; i++)
+                        {
+                            <span style="color: gold;">&#9733;</span> 
+                        }
+
+                        for (int i = rating.Value; i < 5; i++)
+                        {
+                            <span>&#9734;</span>
+                        }
+                    }
+                    else
+                    {
+                        <span>No rating available</span> 
+                    }
+                </h5>
+                <h5>@Html.DisplayFor(modelItem => item.SubmissionDate)</h5>
+
+            </div>
+            <p class="card-body">@Html.DisplayFor(modelItem => item.Comment)</p>
+        </div>
+        <br>
+    }
+</div>

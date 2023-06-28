@@ -1,0 +1,101 @@
+﻿@model MusicAlbumStore.ViewModels.MusicAlbumGenreViewModel
+
+@{
+    ViewData["Title"] = "Music Albums";
+}
+
+<style>
+    body {
+        background-color: ghostwhite
+    }
+</style>
+
+<h1>Music Albums</h1>
+
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+<form asp-controller="MusicAlbums" asp-action="Index" method="get">
+    <p>
+        <select asp-for="MusicAlbumGenre" asp-items="Model.Genres">
+            <option value="">All</option>
+        </select>
+        Music Album Name: <input type="text" asp-for="SearchMusicAlbum" />
+        Release Year: <input type="text" asp-for="SearchReleaseYear" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+
+@{
+    var musicAlbums = Model.MusicAlbums;
+    var nummusicAlbums = musicAlbums.Count();
+    var numColumns = 2;
+    var numRows = (int)Math.Ceiling((double)nummusicAlbums / numColumns);
+}
+<div class="container">
+    @for (int i = 0; i < numRows; i++)
+    {
+        <div class="row">
+            @for (int j = 0; j < numColumns; j++)
+            {
+                var index = i * numColumns + j;
+                if (index >= nummusicAlbums) { break; }
+                var item = musicAlbums.ElementAt(index);
+                <div class="col-md-6">
+                    <div class="card mb-3" style="height: 250px;">
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <img src="@Url.Content(@item.CoverImage)" class="card-img" alt="Cover Image" style="height: 250px; width:199px">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        @Html.DisplayFor(modelItem => item.MusicAlbumName)
+                                    </h5>
+                                    <p class="card-text">
+                                        @Html.DisplayNameFor(model => model.MusicAlbums[0].ReleaseDate): @Html.DisplayFor(modelItem => item.ReleaseDate)
+                                    </p>
+                                    <p class="card-text">
+                                        @Html.DisplayNameFor(model => model.MusicAlbums[0].Artist):
+                                        @if (item.ArtistId != null)
+                                        {
+                                            <a asp-controller="Artists" asp-action="Details" asp-route-id="@item.ArtistId"> @Html.DisplayFor(modelItem => item.Artist.ArtistName)</a>
+                                        }
+                                    </p>
+                                    <p class="card-text">
+                                        Average Rating:
+                                        @if (ViewBag.AverageRatings.ContainsKey(item.Id))
+                                        {
+                                            <span>@ViewBag.AverageRatings[item.Id].ToString("0.00")</span>
+                                        }
+                                    </p>
+                                    <p class="card-text">
+                                        @Html.DisplayNameFor(model => model.MusicAlbums[0].Price): @Html.DisplayFor(modelItem => item.Price) $
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                            }
+                                            |
+                                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                            }
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
